@@ -67,6 +67,7 @@ ROBOTSTXT_OBEY = True
 ITEM_PIPELINES = {
     "bookscraper.pipelines.BookRatingPipeline": 400,
     "bookscraper.pipelines.JsonPipeline": 500,
+    "bookscraper.pipelines.CsvPipeline": 600,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)

@@ -4,12 +4,7 @@
 #
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: https://docs.scrapy.org/en/latest/topics/item-pipeline.html
-from scrapy.exporters import JsonItemExporter
-
-
-class BookscraperPipeline:
-    def process_item(self, item, spider):
-        return item
+from scrapy.exporters import CsvItemExporter, JsonItemExporter
 
 
 class BookRatingPipeline(object):
@@ -44,3 +39,30 @@ class JsonPipeline(object):
     def process_item(self, item, spider):
         self.exporter.export_item(item)
         return item
+
+
+class CsvPipeline(object):
+    def __init__(self):
+        self.file = open("books.csv", "wb")
+        self.exporter = CsvItemExporter(self.file)
+        self.exporter.start_exporting()
+
+    def close_spider(self, spider):
+        self.exporter.finish_exporting()
+        self.file.close()
+
+    def process_item(self, item, spider):
+        self.create_valid_css(item=item)
+        self.exporter.export_item(item)
+        return item
+
+    def create_valid_css(self, item):
+        """create a valid css by recognizing comma(,).
+        Fields containing text with commas can screw up the whole csv structure.
+
+        Arguments:
+            item {scrapy.Item} -- bookscraperItem
+        """
+        for key, value in item.items():
+            if isinstance(value, str) and ("," in value.encode("utf-8")):
+                item[key] = '"' + value + '"'
